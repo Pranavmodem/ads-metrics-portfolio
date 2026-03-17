@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Metrics Design Portfolio - Pranav Modem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f0f0f;
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(229, 9, 20, 0.2);
+            z-index: 100;
+            padding: 15px 0;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #E50914;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            overflow-x: auto;
+        }
+
+        nav a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+            white-space: nowrap;
+        }
+
+        nav a:hover, nav a.active {
+            color: #E50914;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 100px 0;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(229, 9, 20, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #E50914 0%, #ff6b6b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 20px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .hero .description {
+            font-size: 16px;
+            color: #888;
+            max-width: 600px;
+            line-height: 1.8;
+        }
+
+        /* Section */
+        section {
+            padding: 80px 0;
+            border-bottom: 1px solid rgba(229, 9, 20, 0.1);
+        }
+
+        section h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        section > p {
+            color: #aaa;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+
+        /* Cards */
+        .card {
+            background: #1F1F1F;
+            border: 1px solid rgba(229, 9, 20, 0.15);
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(229, 9, 20, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: #1F1F1F;
+            border: 1px solid rgba(229, 9, 20, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #E50914;
+            margin-bottom: 5px;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            color: #4ade80;
+        }
+
+        .kpi-change.negative {
+            color: #f87171;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: #1F1F1F;
+            border: 1px solid rgba(229, 9, 20, 0.15);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* D3 Styles */
+        .node {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        .link {
+            stroke: rgba(229, 9, 20, 0.3);
+            stroke-opacity: 0.5;
+        }
+
+        .axis-label {
+            font-size: 12px;
+            fill: #aaa;
+        }
+
+        .grid-line {
+            stroke: rgba(229, 9, 20, 0.1);
+            stroke-dasharray: 2,2;
+        }
+
+        /* Attribution Toggle */
+        .attribution-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            background: transparent;
+            color: #aaa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            border-color: rgba(229, 9, 20, 0.6);
+            color: #ffffff;
+        }
+
+        .btn.active {
+            background: #E50914;
+            border-color: #E50914;
+            color: #ffffff;
+        }
+
+        /* Data Quality Grid */
+        .quality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .quality-card {
+            background: #1F1F1F;
+            border: 1px solid rgba(229, 9, 20, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .quality-metric {
+            margin-bottom: 20px;
+        }
+
+        .quality-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            background: rgba(229, 9, 20, 0.2);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #E50914;
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        /* Architecture Diagram */
+        .arch-diagram {
+            background: #1F1F1F;
+            border: 1px solid rgba(229, 9, 20, 0.15);
+            border-radius: 8px;
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        .arch-box {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(229, 9, 20, 0.05));
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin: 0 10px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .arch-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .arch-box small {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .arch-arrow {
+            display: inline-block;
+            margin: 0 10px;
+            color: #E50914;
+            font-weight: bold;
+        }
+
+        /* About Section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .about-text p {
+            margin-bottom: 15px;
+            color: #aaa;
+            line-height: 1.8;
+        }
+
+        .about-links {
+            margin-top: 25px;
+        }
+
+        .about-links a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #E50914;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 15px;
+            transition: background 0.3s;
+        }
+
+        .about-links a:hover {
+            background: #ff6b6b;
+        }
+
+        .about-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-badge {
+            background: rgba(229, 9, 20, 0.2);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            color: #E50914;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Footer */
+        footer {
+            background: #0a0a0a;
+            border-top: 1px solid rgba(229, 9, 20, 0.1);
+            padding: 40px 0;
+            text-align: center;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            nav ul {
+                gap: 15px;
+                font-size: 12px;
+            }
+
+            section {
+                padding: 50px 0;
+            }
+
+            section h2 {
+                font-size: 28px;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo">PM</div>
+            <ul>
+                <li><a href="#attribution" onclick="scrollToSection(event)">Attribution</a></li>
+                <li><a href="#campaign" onclick="scrollToSection(event)">Campaign</a></li>
+                <li><a href="#supply" onclick="scrollToSection(event)">Supply Health</a></li>
+                <li><a href="#experiments" onclick="scrollToSection(event)">Experiments</a></li>
+                <li><a href="#quality" onclick="scrollToSection(event)">Data Quality</a></li>
+                <li><a href="#architecture" onclick="scrollToSection(event)">Architecture</a></li>
+                <li><a href="#about" onclick="scrollToSection(event)">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Ad Metrics Design Portfolio</h1>
+            <p class="subtitle">L5 Analytics Engineer | Netflix Advertising</p>
+            <p class="description">
+                Demonstrating expertise in attribution modeling, real-time dashboarding, data quality frameworks, and ad tech architecture.
+                This portfolio showcases D3.js visualization, metrics design, and SQL-driven analytics at scale.
+            </p>
+        </div>
+    </section>
+
+    <!-- Attribution Model Comparison -->
+    <section id="attribution">
+        <div class="container">
+            <h2>Attribution Model Comparison</h2>
+            <p>Interactive comparison of how different attribution models allocate credit across the customer journey. Each model reveals different insights into campaign effectiveness.</p>
+
+            <div class="attribution-controls">
+                <button class="btn active" onclick="updateAttribution('lastTouch')">Last-Touch</button>
+                <button class="btn" onclick="updateAttribution('firstTouch')">First-Touch</button>
+                <button class="btn" onclick="updateAttribution('linear')">Linear</button>
+                <button class="btn" onclick="updateAttribution('timeDdecay')">Time Decay</button>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Customer Journey Attribution Flow</div>
+                <svg id="attribution-diagram" width="100%" height="500"></svg>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Display Credit</div>
+                    <div class="kpi-value" id="display-credit">32%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Search Credit</div>
+                    <div class="kpi-value" id="search-credit">28%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Social Credit</div>
+                    <div class="kpi-value" id="social-credit">25%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Direct Credit</div>
+                    <div class="kpi-value" id="direct-credit">15%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Campaign Performance Dashboard -->
+    <section id="campaign">
+        <div class="container">
+            <h2>Campaign Performance Dashboard</h2>
+            <p>Real-time KPI monitoring with 90-day trend analysis. All metrics auto-update to reflect latest campaign performance across all channels.</p>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">CPM</div>
+                    <div class="kpi-value">$8.42</div>
+                    <div class="kpi-change">↓ 12% vs prior week</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CTR</div>
+                    <div class="kpi-value">3.24%</div>
+                    <div class="kpi-change">↑ 8% vs prior week</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">ROAS</div>
+                    <div class="kpi-value">4.87x</div>
+                    <div class="kpi-change">↑ 15% vs prior week</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CPA</div>
+                    <div class="kpi-value">$12.50</div>
+                    <div class="kpi-change negative">↑ 3% vs prior week</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Fill Rate</div>
+                    <div class="kpi-value">94.2%</div>
+                    <div class="kpi-change">↑ 2% vs prior week</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Frequency</div>
+                    <div class="kpi-value">4.2x</div>
+                    <div class="kpi-change">↑ 0.3 vs prior week</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">90-Day Performance Trends</div>
+                <canvas id="trendChart" height="80"></canvas>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="card">
+                    <div class="chart-title">Impressions by Channel</div>
+                    <canvas id="channelChart" height="200"></canvas>
+                </div>
+                <div class="card">
+                    <div class="chart-title">Conversions Funnel</div>
+                    <canvas id="conversionChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ad Supply & Decisioning Health -->
+    <section id="supply">
+        <div class="container">
+            <h2>Ad Supply & Decisioning Health</h2>
+            <p>Real-time monitoring of impression delivery patterns, latency distribution, and supply-side optimization metrics.</p>
+
+            <div class="chart-container">
+                <div class="chart-title">Hourly Impressions Heatmap (Hour × Day of Week)</div>
+                <svg id="heatmap" width="100%" height="300"></svg>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="card">
+                    <div class="chart-title">Fill Rate by Inventory Type</div>
+                    <svg id="fillGauge" width="100%" height="220"></svg>
+                </div>
+                <div class="card">
+                    <div class="chart-title">Request Latency Distribution</div>
+                    <svg id="latencyHist" width="100%" height="220"></svg>
+                </div>
+                <div class="card">
+                    <div class="chart-title">Auction Types</div>
+                    <canvas id="auctionChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experiment Results Viewer -->
+    <section id="experiments">
+        <div class="container">
+            <h2>A/B Test Results Viewer</h2>
+            <p>Statistical summary of active and completed experiments with confidence intervals and lift metrics.</p>
+
+            <div class="kpi-grid">
+                <div class="card">
+                    <strong>Exp #1: New Creative Format</strong>
+                    <p style="color: #aaa; margin-top: 10px; font-size: 14px;">CTR Improvement</p>
+                    <svg id="bulletChart1" width="100%" height="60" style="margin-top: 10px;"></svg>
+                    <p style="color: #888; font-size: 12px; margin-top: 10px;">Lift: +12.4% | p-value: 0.002 | Confidence: 99.8%</p>
+                </div>
+                <div class="card">
+                    <strong>Exp #2: Frequency Capping</strong>
+                    <p style="color: #aaa; margin-top: 10px; font-size: 14px;">ROAS Change</p>
+                    <svg id="bulletChart2" width="100%" height="60" style="margin-top: 10px;"></svg>
+                    <p style="color: #888; font-size: 12px; margin-top: 10px;">Lift: +8.7% | p-value: 0.015 | Confidence: 98.5%</p>
+                </div>
+                <div class="card">
+                    <strong>Exp #3: Contextual Targeting</strong>
+                    <p style="color: #aaa; margin-top: 10px; font-size: 14px;">Cost Per Acq. Reduction</p>
+                    <svg id="bulletChart3" width="100%" height="60" style="margin-top: 10px;"></svg>
+                    <p style="color: #888; font-size: 12px; margin-top: 10px;">Lift: -6.2% | p-value: 0.041 | Confidence: 95.9%</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Experiment Results Timeline</div>
+                <svg id="experimentTimeline" width="100%" height="300"></svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Quality Scorecard -->
+    <section id="quality">
+        <div class="container">
+            <h2>Data Quality Scorecard</h2>
+            <p>Comprehensive framework monitoring freshness, completeness, uniqueness, and accuracy across all ad metrics pipelines.</p>
+
+            <div class="quality-grid">
+                <div class="quality-card">
+                    <h3 style="margin-bottom: 20px;">Impression Events</h3>
+                    <div class="quality-metric">
+                        <div class="quality-label">Freshness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 98%;"></div>
+                        </div>
+                        <small style="color: #666;">Last updated: 2 min ago</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Completeness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 99.4%;"></div>
+                        </div>
+                        <small style="color: #666;">1.2M / 1.21M rows</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Uniqueness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 99.9%;"></div>
+                        </div>
+                        <small style="color: #666;">Duplicates: 0.1%</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Accuracy</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 97.2%;"></div>
+                        </div>
+                        <small style="color: #666;">Validation score: 97.2%</small>
+                    </div>
+                </div>
+
+                <div class="quality-card">
+                    <h3 style="margin-bottom: 20px;">Click Events</h3>
+                    <div class="quality-metric">
+                        <div class="quality-label">Freshness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 99%;"></div>
+                        </div>
+                        <small style="color: #666;">Last updated: 1 min ago</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Completeness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 98.8%;"></div>
+                        </div>
+                        <small style="color: #666;">890K / 900K rows</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Uniqueness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 99.8%;"></div>
+                        </div>
+                        <small style="color: #666;">Duplicates: 0.2%</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Accuracy</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 96.5%;"></div>
+                        </div>
+                        <small style="color: #666;">Validation score: 96.5%</small>
+                    </div>
+                </div>
+
+                <div class="quality-card">
+                    <h3 style="margin-bottom: 20px;">Conversion Events</h3>
+                    <div class="quality-metric">
+                        <div class="quality-label">Freshness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 94%;"></div>
+                        </div>
+                        <small style="color: #666;">Last updated: 15 min ago</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Completeness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 97.2%;"></div>
+                        </div>
+                        <small style="color: #666;">285K / 293K rows</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Uniqueness</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 99.5%;"></div>
+                        </div>
+                        <small style="color: #666;">Duplicates: 0.5%</small>
+                    </div>
+                    <div class="quality-metric">
+                        <div class="quality-label">Accuracy</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 95.8%;"></div>
+                        </div>
+                        <small style="color: #666;">Validation score: 95.8%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Diagram -->
+    <section id="architecture">
+        <div class="container">
+            <h2>Data Architecture</h2>
+            <p>End-to-end pipeline from ad servers through BigQuery, dbt transformations, and real-time dashboarding.</p>
+
+            <div class="arch-diagram">
+                <div class="arch-box">
+                    <strong>Ad Servers</strong>
+                    <small>Google Ad Manager, AppNexus, Rubicon</small>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box">
+                    <strong>Event Ingestion</strong>
+                    <small>Pub/Sub, Kafka</small>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box">
+                    <strong>Data Lake</strong>
+                    <small>Cloud Storage, Parquet</small>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box">
+                    <strong>BigQuery</strong>
+                    <small>Raw tables, 50TB+</small>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box">
+                    <strong>dbt</strong>
+                    <small>Transformations, Tests</small>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-box">
+                    <strong>Dashboards</strong>
+                    <small>Looker, Custom</small>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <h3 style="margin-bottom: 20px;">Key Technologies & Skills</h3>
+                <div class="about-skills">
+                    <span class="skill-badge">BigQuery (SQL)</span>
+                    <span class="skill-badge">dbt</span>
+                    <span class="skill-badge">D3.js</span>
+                    <span class="skill-badge">Python</span>
+                    <span class="skill-badge">Apache Airflow</span>
+                    <span class="skill-badge">Looker</span>
+                    <span class="skill-badge">Git/GitHub</span>
+                    <span class="skill-badge">Statistical Testing</span>
+                    <span class="skill-badge">Attribution Modeling</span>
+                    <span class="skill-badge">Real-time Analytics</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Me -->
+    <section id="about">
+        <div class="container">
+            <h2>About Me</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>
+                        I'm Pranav Modem, an analytics engineer passionate about building scalable data infrastructure for advertising and monetization platforms.
+                    </p>
+                    <p>
+                        With experience designing real-time dashboards, implementing attribution models, and optimizing data pipelines, I focus on translating complex ad tech challenges into clear, actionable metrics and insights.
+                    </p>
+                    <p>
+                        This portfolio demonstrates my expertise in D3.js visualization, metrics design, SQL optimization, and working across the full analytics stack from data ingestion through presentation.
+                    </p>
+                </div>
+                <div>
+                    <div class="about-links">
+                        <a href="https://github.com/Pranavmodem" target="_blank">GitHub</a>
+                        <a href="#" onclick="alert('Email: contact@pranavmodem.com')">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Pranav Modem. Ad Metrics Design Portfolio.</p>
+    </footer>
+
+    <script>
+        // Initialize current attribution model
+        let currentModel = 'lastTouch';
+
+        // Attribution data
+        const attributionData = {
+            lastTouch: { Display: 0.15, Search: 0.35, Social: 0.30, Direct: 0.20 },
+            firstTouch: { Display: 0.40, Search: 0.20, Social: 0.25, Direct: 0.15 },
+            linear: { Display: 0.28, Search: 0.27, Social: 0.25, Direct: 0.20 },
+            timeDecode: { Display: 0.35, Search: 0.30, Social: 0.22, Direct: 0.13 }
+        };
+
+        // Update attribution model
+        function updateAttribution(model) {
+            currentModel = model;
+            document.querySelectorAll('.attribution-controls .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const data = attributionData[model] || attributionData['lastTouch'];
+            document.getElementById('display-credit').textContent = (data.Display * 100).toFixed(0) + '%';
+            document.getElementById('search-credit').textContent = (data.Search * 100).toFixed(0) + '%';
+            document.getElementById('social-credit').textContent = (data.Social * 100).toFixed(0) + '%';
+            document.getElementById('direct-credit').textContent = (data.Direct * 100).toFixed(0) + '%';
+
+            drawAttributionSankey(data);
+        }
+
+        // Draw Attribution Sankey Diagram
+        function drawAttributionSankey(data) {
+            const width = document.getElementById('attribution-diagram').parentElement.clientWidth - 50;
+            const height = 500;
+
+            d3.select('#attribution-diagram').selectAll('*').remove();
+            const svg = d3.select('#attribution-diagram')
+                .attr('width', width)
+                .attr('height', height);
+
+            const nodes = [
+                {id: 'Awareness'},
+                {id: 'Consideration'},
+                {id: 'Conversion'},
+                {id: 'Display'},
+                {id: 'Search'},
+                {id: 'Social'},
+                {id: 'Direct'}
+            ];
+
+            const links = [
+                {source: 3, target: 0, value: 10},
+                {source: 4, target: 0, value: 8},
+                {source: 5, target: 0, value: 7},
+                {source: 6, target: 0, value: 5},
+                {source: 0, target: 1, value: 25},
+                {source: 3, target: 1, value: 5},
+                {source: 4, target: 1, value: 8},
+                {source: 1, target: 2, value: 30},
+                {source: 3, target: 2, value: 10 * data.Display},
+                {source: 4, target: 2, value: 10 * data.Search},
+                {source: 5, target: 2, value: 10 * data.Social},
+                {source: 6, target: 2, value: 10 * data.Direct}
+            ];
+
+            const sankey = d3.sankey()
+                .nodeWidth(15)
+                .nodePadding(40)
+                .extent([[1, 1], [width - 1, height - 1]]);
+
+            const graph = sankey({nodes, links});
+
+            const link = svg.append("g")
+                .selectAll("path")
+                .data(graph.links)
+                .join("path")
+                .attr("d", d3.sankeyLinkHorizontal())
+                .attr("stroke", "rgba(229, 9, 20, 0.3)")
+                .attr("stroke-width", d => Math.max(1, d.width));
+
+            const node = svg.append("g")
+                .selectAll("rect")
+                .data(graph.nodes)
+                .join("rect")
+                .attr("x", d => d.x0)
+                .attr("y", d => d.y0)
+                .attr("height", d => d.y1 - d.y0)
+                .attr("width", d => d.x1 - d.x0)
+                .attr("fill", "rgba(229, 9, 20, 0.4)")
+                .attr("stroke", "rgba(229, 9, 20, 0.6)");
+
+            svg.append("g")
+                .selectAll("text")
+                .data(graph.nodes)
+                .join("text")
+                .attr("x", d => (d.x0 + d.x1) / 2)
+                .attr("y", d => (d.y0 + d.y1) / 2)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .attr("fill", "#fff")
+                .attr("font-size", "12px")
+                .text(d => d.id);
+        }
+
+        // Initialize trend chart (Line chart with Chart.js)
+        function initTrendChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = [];
+            const cprs = [];
+            const ctr = [];
+            const roas = [];
+
+            for (let i = 90; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}));
+                cprs.push(7.5 + Math.random() * 2);
+                ctr.push(2.8 + Math.random() * 0.8);
+                roas.push(4.2 + Math.random() * 1);
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'CPM ($)',
+                            data: cprs,
+                            borderColor: '#E50914',
+                            backgroundColor: 'rgba(229, 9, 20, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'CTR (%)',
+                            data: ctr,
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74, 222, 128, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'ROAS (x)',
+                            data: roas,
+                            borderColor: '#60a5fa',
+                            backgroundColor: 'rgba(96, 165, 250, 0.05)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {color: '#aaa', font: {size: 12}},
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {color: 'rgba(229, 9, 20, 0.1)'},
+                            ticks: {color: '#aaa'}
+                        },
+                        x: {
+                            grid: {display: false},
+                            ticks: {color: '#aaa', maxTicksLimit: 10}
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize channel chart (Bar chart)
+        function initChannelChart() {
+            const ctx = document.getElementById('channelChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Display', 'Video', 'Search', 'Social', 'Native'],
+                    datasets: [{
+                        label: 'Impressions (Millions)',
+                        data: [25, 18, 22, 15, 12],
+                        backgroundColor: ['#E50914', '#ff6b6b', '#ff8787', '#ffb3b3', '#ffc9c9']
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {
+                        x: {grid: {color: 'rgba(229, 9, 20, 0.1)'}, ticks: {color: '#aaa'}},
+                        y: {ticks: {color: '#aaa'}}
+                    }
+                }
+            });
+        }
+
+        // Initialize conversion chart (Funnel)
+        function initConversionChart() {
+            const ctx = document.getElementById('conversionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Impressions', 'Clicks', 'Add-to-Cart', 'Conversions'],
+                    datasets: [{
+                        data: [1200000, 38900, 8200, 3800],
+                        backgroundColor: ['#E50914', '#ff6b6b', '#ff8787', '#ffb3b3']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {labels: {color: '#aaa', font: {size: 11}}}}
+                }
+            });
+        }
+
+        // Initialize auction chart
+        function initAuctionChart() {
+            const ctx = document.getElementById('auctionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['First-Price', 'Second-Price', 'Header Bidding'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: ['#E50914', '#ff6b6b', '#ff8787']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {labels: {color: '#aaa', font: {size: 11}}}}
+                }
+            });
+        }
+
+        // Draw heatmap
+        function drawHeatmap() {
+            const width = 800;
+            const height = 300;
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const hours = Array.from({length: 24}, (_, i) => i);
+
+            const data = [];
+            for (let h = 0; h < 24; h++) {
+                for (let d = 0; d < 7; d++) {
+                    data.push({hour: h, day: d, value: Math.random() * 100});
+                }
+            }
+
+            d3.select('#heatmap').selectAll('*').remove();
+            const svg = d3.select('#heatmap')
+                .attr('width', width).attr('height', height);
+
+            const cellSize = 25;
+            const g = svg.append('g').attr('transform', 'translate(50, 30)');
+
+            const color = d3.scaleLinear()
+                .domain([0, 50, 100])
+                .range(['#1F1F1F', '#E50914', '#ff6b6b']);
+
+            g.selectAll('.cell')
+                .data(data)
+                .enter().append('rect')
+                .attr('class', 'cell')
+                .attr('x', d => d.day * cellSize)
+                .attr('y', d => d.hour * cellSize)
+                .attr('width', cellSize)
+                .attr('height', cellSize)
+                .attr('fill', d => color(d.value))
+                .attr('stroke', 'rgba(229, 9, 20, 0.2)');
+
+            // Day labels
+            svg.selectAll('.day-label')
+                .data(days)
+                .enter().append('text')
+                .attr('class', 'day-label')
+                .attr('x', (d, i) => 50 + i * cellSize + cellSize / 2)
+                .attr('y', 20)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#aaa')
+                .attr('font-size', '12px')
+                .text(d => d);
+
+            // Hour labels
+            svg.selectAll('.hour-label')
+                .data(hours)
+                .enter().append('text')
+                .attr('class', 'hour-label')
+                .attr('x', 35)
+                .attr('y', (d, i) => 30 + i * cellSize + cellSize / 2 + 4)
+                .attr('text-anchor', 'end')
+                .attr('fill', '#aaa')
+                .attr('font-size', '10px')
+                .text(d => d + ':00');
+        }
+
+        // Draw fill rate gauge
+        function drawFillGauge() {
+            const width = 300, height = 200;
+            d3.select('#fillGauge').selectAll('*').remove();
+            const svg = d3.select('#fillGauge')
+                .attr('width', width).attr('height', height);
+
+            const fillRate = 0.942;
+            const g = svg.append('g').attr('transform', 'translate(' + width/2 + ',' + height/2 + ')');
+
+            // Arc background
+            const arcBackground = d3.arc()
+                .innerRadius(50)
+                .outerRadius(80)
+                .startAngle(-Math.PI/2)
+                .endAngle(Math.PI/2);
+
+            g.append('path')
+                .attr('d', arcBackground())
+                .attr('fill', 'rgba(229, 9, 20, 0.2)');
+
+            // Arc fill
+            const arcFill = d3.arc()
+                .innerRadius(50)
+                .outerRadius(80)
+                .startAngle(-Math.PI/2)
+                .endAngle(-Math.PI/2 + fillRate * Math.PI);
+
+            g.append('path')
+                .attr('d', arcFill())
+                .attr('fill', '#E50914');
+
+            // Text
+            g.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('y', 15)
+                .attr('font-size', '24px')
+                .attr('font-weight', '700')
+                .attr('fill', '#fff')
+                .text((fillRate * 100).toFixed(1) + '%');
+        }
+
+        // Draw latency histogram
+        function drawLatencyHist() {
+            const width = 300, height = 200;
+            d3.select('#latencyHist').selectAll('*').remove();
+            const svg = d3.select('#latencyHist')
+                .attr('width', width).attr('height', height);
+
+            const bins = [
+                {range: '0-10ms', count: 450},
+                {range: '10-20ms', count: 320},
+                {range: '20-50ms', count: 180},
+                {range: '50-100ms', count: 35},
+                {range: '100ms+', count: 15}
+            ];
+
+            const g = svg.append('g').attr('transform', 'translate(40, 20)');
+            const x = d3.scaleBand().domain(bins.map(d => d.range)).range([0, width - 80]).padding(0.2);
+            const y = d3.scaleLinear().domain([0, 500]).range([height - 40, 0]);
+
+            g.selectAll('.bar')
+                .data(bins)
+                .enter().append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => x(d.range))
+                .attr('y', d => y(d.count))
+                .attr('width', x.bandwidth())
+                .attr('height', d => height - 40 - y(d.count))
+                .attr('fill', '#E50914');
+
+            // X axis
+            g.append('g')
+                .attr('transform', 'translate(0,' + (height - 40) + ')')
+                .selectAll('text')
+                .data(bins)
+                .enter().append('text')
+                .attr('x', d => x(d.range) + x.bandwidth() / 2)
+                .attr('y', 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#aaa')
+                .attr('font-size', '10px')
+                .text(d => d.range);
+
+            // Y axis
+            g.selectAll('.y-tick')
+                .data([0, 100, 200, 300, 400, 500])
+                .enter().append('line')
+                .attr('x1', 0)
+                .attr('x2', width - 80)
+                .attr('y1', d => y(d))
+                .attr('y2', d => y(d))
+                .attr('stroke', 'rgba(229, 9, 20, 0.1)')
+                .attr('class', 'grid-line');
+        }
+
+        // Draw bullet charts
+        function drawBulletChart(selector, ranges, measures) {
+            const width = 300, height = 60;
+            d3.select(selector).selectAll('*').remove();
+            const svg = d3.select(selector)
+                .attr('width', width).attr('height', height);
+
+            const margin = {top: 10, right: 20, bottom: 10, left: 20};
+            const g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+            const w = width - margin.left - margin.right;
+            const h = height - margin.top - margin.bottom;
+
+            const x = d3.scaleLinear().domain([0, 150]).range([0, w]);
+
+            // Background ranges
+            g.selectAll('.range')
+                .data(ranges)
+                .enter().append('rect')
+                .attr('class', 'range')
+                .attr('x', 0)
+                .attr('y', i => i * (h / ranges.length))
+                .attr('width', d => x(d))
+                .attr('height', h / ranges.length)
+                .attr('fill', d => d === ranges[2] ? 'rgba(229, 9, 20, 0.15)' : d === ranges[1] ? 'rgba(229, 9, 20, 0.25)' : 'rgba(229, 9, 20, 0.4)');
+
+            // Measures
+            g.selectAll('.measure')
+                .data(measures)
+                .enter().append('rect')
+                .attr('class', 'measure')
+                .attr('x', 0)
+                .attr('y', h / 2 - 3)
+                .attr('width', d => x(d))
+                .attr('height', 6)
+                .attr('fill', '#E50914');
+        }
+
+        // Draw experiment timeline
+        function drawExperimentTimeline() {
+            const width = 900, height = 300;
+            d3.select('#experimentTimeline').selectAll('*').remove();
+            const svg = d3.select('#experimentTimeline')
+                .attr('width', width).attr('height', height);
+
+            const experiments = [
+                {name: 'Exp #1: Creative Format', start: 0, duration: 30, lift: 12.4},
+                {name: 'Exp #2: Freq. Cap', start: 10, duration: 25, lift: 8.7},
+                {name: 'Exp #3: Targeting', start: 20, duration: 28, lift: -6.2}
+            ];
+
+            const g = svg.append('g').attr('transform', 'translate(40, 30)');
+            const x = d3.scaleLinear().domain([0, 60]).range([0, width - 80]);
+            const y = d3.scaleBand().domain(experiments.map(d => d.name)).range([0, height - 60]).padding(0.3);
+
+            // Experiment bars
+            g.selectAll('.exp-bar')
+                .data(experiments)
+                .enter().append('rect')
+                .attr('class', 'exp-bar')
+                .attr('x', d => x(d.start))
+                .attr('y', d => y(d.name))
+                .attr('width', d => x(d.duration))
+                .attr('height', y.bandwidth())
+                .attr('fill', d => d.lift > 0 ? 'rgba(74, 222, 128, 0.5)' : 'rgba(244, 63, 94, 0.5)')
+                .attr('stroke', d => d.lift > 0 ? '#4ade80' : '#f43f5e')
+                .attr('stroke-width', 1);
+
+            // Y axis labels
+            g.selectAll('.exp-label')
+                .data(experiments)
+                .enter().append('text')
+                .attr('class', 'exp-label')
+                .attr('x', -10)
+                .attr('y', d => y(d.name) + y.bandwidth() / 2 + 4)
+                .attr('text-anchor', 'end')
+                .attr('fill', '#aaa')
+                .attr('font-size', '12px')
+                .text(d => d.name);
+
+            // X axis
+            g.append('g')
+                .attr('transform', 'translate(0,' + (height - 60) + ')')
+                .selectAll('text')
+                .data([0, 10, 20, 30, 40, 50, 60])
+                .enter().append('text')
+                .attr('x', d => x(d))
+                .attr('y', 15)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#aaa')
+                .attr('font-size', '11px')
+                .text(d => d + ' days');
+        }
+
+        // Scroll to section
+        function scrollToSection(e) {
+            e.preventDefault();
+            const target = e.currentTarget.getAttribute('href').substring(1);
+            const element = document.getElementById(target);
+            element.scrollIntoView({behavior: 'smooth'});
+        }
+
+        // Initialize all charts on page load
+        window.addEventListener('load', () => {
+            initTrendChart();
+            initChannelChart();
+            initConversionChart();
+            initAuctionChart();
+            drawHeatmap();
+            drawFillGauge();
+            drawLatencyHist();
+            drawBulletChart('#bulletChart1', [50, 100, 130], [112]);
+            drawBulletChart('#bulletChart2', [50, 100, 130], [95]);
+            drawBulletChart('#bulletChart3', [50, 100, 130], [94]);
+            drawExperimentTimeline();
+            updateAttribution('lastTouch');
+        });
+
+        // Responsive updates
+        window.addEventListener('resize', () => {
+            drawHeatmap();
+        });
+    </script>
+</body>
+</html>
