@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ad Metrics Design Portfolio - Pranav Modem</title>
+    <title>Analytics Portfolio - Pranav Modem</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-sankey/0.12.3/d3-sankey.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         * {
@@ -180,6 +181,12 @@
             border-radius: 8px;
             padding: 25px;
             margin-bottom: 30px;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .chart-container canvas {
+            max-height: 300px;
         }
 
         .chart-title {
@@ -451,8 +458,8 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h1>Ad Metrics Design Portfolio</h1>
-            <p class="subtitle">L5 Analytics Engineer | Netflix Advertising</p>
+            <h1>Analytics Portfolio</h1>
+            <p class="subtitle">Senior Analytics Engineer | Ad Tech & Data Platforms</p>
             <p class="description">
                 Demonstrating expertise in attribution modeling, real-time dashboarding, data quality frameworks, and ad tech architecture.
                 This portfolio showcases D3.js visualization, metrics design, and SQL-driven analytics at scale.
@@ -467,15 +474,15 @@
             <p>Interactive comparison of how different attribution models allocate credit across the customer journey. Each model reveals different insights into campaign effectiveness.</p>
 
             <div class="attribution-controls">
-                <button class="btn active" onclick="updateAttribution('lastTouch')">Last-Touch</button>
-                <button class="btn" onclick="updateAttribution('firstTouch')">First-Touch</button>
-                <button class="btn" onclick="updateAttribution('linear')">Linear</button>
-                <button class="btn" onclick="updateAttribution('timeDdecay')">Time Decay</button>
+                <button class="btn active" onclick="updateAttribution('lastTouch', this)">Last-Touch</button>
+                <button class="btn" onclick="updateAttribution('firstTouch', this)">First-Touch</button>
+                <button class="btn" onclick="updateAttribution('linear', this)">Linear</button>
+                <button class="btn" onclick="updateAttribution('timeDecay', this)">Time Decay</button>
             </div>
 
             <div class="chart-container">
                 <div class="chart-title">Customer Journey Attribution Flow</div>
-                <svg id="attribution-diagram" width="100%" height="500"></svg>
+                <svg id="attribution-diagram" width="100%" height="380"></svg>
             </div>
 
             <div class="kpi-grid">
@@ -799,7 +806,7 @@
                 <div>
                     <div class="about-links">
                         <a href="https://github.com/Pranavmodem" target="_blank">GitHub</a>
-                        <a href="#" onclick="alert('Email: contact@pranavmodem.com')">Contact</a>
+                        <a href="mailto:pranavmodem@gmail.com">Contact</a>
                     </div>
                 </div>
             </div>
@@ -808,7 +815,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 Pranav Modem. Ad Metrics Design Portfolio.</p>
+        <p>&copy; 2026 Pranav Modem. Analytics Portfolio.</p>
     </footer>
 
     <script>
@@ -820,16 +827,17 @@
             lastTouch: { Display: 0.15, Search: 0.35, Social: 0.30, Direct: 0.20 },
             firstTouch: { Display: 0.40, Search: 0.20, Social: 0.25, Direct: 0.15 },
             linear: { Display: 0.28, Search: 0.27, Social: 0.25, Direct: 0.20 },
-            timeDecode: { Display: 0.35, Search: 0.30, Social: 0.22, Direct: 0.13 }
+            timeDecay: { Display: 0.35, Search: 0.30, Social: 0.22, Direct: 0.13 }
         };
 
         // Update attribution model
-        function updateAttribution(model) {
+        function updateAttribution(model, btnEl) {
             currentModel = model;
             document.querySelectorAll('.attribution-controls .btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            if (btnEl) btnEl.classList.add('active');
+            else document.querySelector('.attribution-controls .btn').classList.add('active');
 
             const data = attributionData[model] || attributionData['lastTouch'];
             document.getElementById('display-credit').textContent = (data.Display * 100).toFixed(0) + '%';
@@ -843,7 +851,7 @@
         // Draw Attribution Sankey Diagram
         function drawAttributionSankey(data) {
             const width = document.getElementById('attribution-diagram').parentElement.clientWidth - 50;
-            const height = 500;
+            const height = 380;
 
             d3.select('#attribution-diagram').selectAll('*').remove();
             const svg = d3.select('#attribution-diagram')

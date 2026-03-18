@@ -1,0 +1,242 @@
+# Metrics Definitions
+# Definitions, formulas, and metadata for all business metrics
+
+metrics:
+  impressions:
+    name: "Impressions"
+    type: "count"
+    description: "Total number of ad impressions served"
+    formula: "COUNT(impression_id)"
+    data_source: "staging_impressions"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  clicks:
+    name: "Clicks"
+    type: "count"
+    description: "Total number of clicks on ads"
+    formula: "COUNT(click_id)"
+    data_source: "events_clicks"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  conversions:
+    name: "Conversions"
+    type: "count"
+    description: "Total number of user conversions (purchases, signups, etc)"
+    formula: "COUNT(conversion_id)"
+    data_source: "staging_conversions"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date", "conversion_type"]
+
+  spend:
+    name: "Ad Spend"
+    type: "currency"
+    currency: "USD"
+    description: "Total advertising spend"
+    formula: "SUM(impression_cost)"
+    data_source: "staging_impressions"
+    business_owner: "Ads Finance"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  revenue:
+    name: "Revenue"
+    type: "currency"
+    currency: "USD"
+    description: "Total revenue from conversions"
+    formula: "SUM(conversion_value_usd)"
+    data_source: "staging_conversions"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date", "conversion_type"]
+
+  # Rate Metrics
+  ctr:
+    name: "Click-Through Rate"
+    type: "percentage"
+    description: "Percentage of impressions that resulted in clicks"
+    formula: "clicks / impressions * 100"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+    benchmark: ">= 1.5%"
+
+  cpm:
+    name: "Cost Per Mille"
+    type: "currency"
+    currency: "USD"
+    description: "Average cost per 1,000 impressions"
+    formula: "(spend / impressions) * 1000"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Finance"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  cpc:
+    name: "Cost Per Click"
+    type: "currency"
+    currency: "USD"
+    description: "Average cost per click"
+    formula: "spend / clicks"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Finance"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  cvr:
+    name: "Conversion Rate"
+    type: "percentage"
+    description: "Percentage of clicks that result in conversions"
+    formula: "conversions / clicks * 100"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+    benchmark: ">= 3%"
+
+  cpa:
+    name: "Cost Per Acquisition"
+    type: "currency"
+    currency: "USD"
+    description: "Average cost to acquire a paying customer"
+    formula: "spend / conversions"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Finance"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+    benchmark: "<= $50"
+
+  # Return Metrics
+  roas:
+    name: "Return On Ad Spend"
+    type: "ratio"
+    description: "Revenue generated for every dollar spent on ads"
+    formula: "revenue / spend"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+    benchmark: ">= 4.0x"
+
+  aov:
+    name: "Average Order Value"
+    type: "currency"
+    currency: "USD"
+    description: "Average revenue per conversion"
+    formula: "revenue / conversions"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  # Inventory Metrics
+  fill_rate:
+    name: "Fill Rate"
+    type: "percentage"
+    description: "Percentage of ad requests that resulted in served impressions"
+    formula: "served_impressions / (served_impressions + unfilled_requests) * 100"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Operations"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+    benchmark: ">= 95%"
+
+  frequency:
+    name: "Average Frequency"
+    type: "ratio"
+    description: "Average number of times an ad was shown to each unique user"
+    formula: "impressions / unique_users"
+    data_source: "mart_campaign_metrics"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  # Attribution Metrics
+  attributed_revenue:
+    name: "Attributed Revenue"
+    type: "currency"
+    currency: "USD"
+    description: "Revenue attributed to channel using multi-touch attribution model"
+    formula: "SUM(attribution_credit) by model"
+    data_source: "mart_attribution_summary"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["channel", "attribution_model", "date"]
+
+  # Reach Metrics
+  unique_users:
+    name: "Unique Users"
+    type: "count"
+    description: "Number of unique users reached by the campaign"
+    formula: "COUNT(DISTINCT user_id)"
+    data_source: "staging_impressions"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+  unique_converters:
+    name: "Unique Converters"
+    type: "count"
+    description: "Number of unique users who converted"
+    formula: "COUNT(DISTINCT user_id)"
+    data_source: "staging_conversions"
+    business_owner: "Ads Analytics"
+    calculation_frequency: "daily"
+    dimensions: ["campaign", "channel", "date"]
+
+# Metric Hierarchies
+metric_groups:
+  efficiency_metrics:
+    - cpm
+    - cpc
+    - cpa
+
+  engagement_metrics:
+    - ctr
+    - cvr
+    - frequency
+
+  roi_metrics:
+    - roas
+    - aov
+    - revenue
+
+  reach_metrics:
+    - impressions
+    - unique_users
+    - frequency
+
+  attribution_metrics:
+    - attributed_revenue
+
+# Calculation Order (dependencies)
+calculation_order:
+  1: ["impressions", "clicks", "conversions", "spend", "revenue", "unique_users", "unique_converters"]
+  2: ["ctr", "cvr", "cpm", "cpc", "fill_rate", "frequency", "aov"]
+  3: ["roas", "cpa"]
+  4: ["attributed_revenue"]
+
+# Data Quality Rules
+data_quality_rules:
+  cpm:
+    min_value: 0
+    max_value: 100
+  ctr:
+    min_value: 0
+    max_value: 100
+  roas:
+    min_value: 0
+    max_value: 1000
+
+# Seasonality Adjustments
+seasonality:
+  enabled: true
+  adjustment_factors:
+    "2024-11": 1.5  # Holiday season (November)
+    "2024-12": 2.0  # Holiday season (December)
+    "2024-01": 1.2  # New Year period

@@ -1,0 +1,180 @@
+# Pipeline Configuration
+# Central configuration for the ads metrics analysis pipeline
+
+# BigQuery Configuration
+gcp:
+  project_id: "netflix-ads-analytics"
+  dataset: "ads_metrics_prod"
+  region: "US"
+  staging_dataset: "ads_metrics_staging"
+
+# Data sources
+sources:
+  impressions:
+    table: "raw_impressions"
+    refresh_frequency: "daily"
+    retention_days: 90
+  conversions:
+    table: "raw_conversions"
+    refresh_frequency: "daily"
+    retention_days: 90
+    late_arrival_window_hours: 72
+  clicks:
+    table: "events_clicks"
+    refresh_frequency: "daily"
+    retention_days: 90
+
+# Attribution Configuration
+attribution:
+  # Attribution window: how many days back to credit touches
+  attribution_window_days: 28
+
+  # Time-decay half-life for exponential decay model
+  time_decay_half_life_days: 7
+
+  # Models to compute
+  models:
+    - last_touch
+    - first_touch
+    - linear
+    - time_decay
+
+  # Minimum touch count threshold
+  min_touches_for_attribution: 1
+
+# Campaign Configuration
+campaigns:
+  # Minimum spend threshold for campaign analysis
+  min_spend_usd: 100
+
+  # Performance benchmarks (for opportunity identification)
+  benchmarks:
+    target_roas: 4.0
+    target_cpa_usd: 50.0
+    target_ctr_pct: 1.5
+
+# Optimization Configuration
+optimization:
+  # Budget reallocation method
+  allocation_method: "weighted_scoring"  # Options: weighted_scoring, performance_tier
+
+  # Scoring weights for budget allocation
+  scoring_weights:
+    roas: 0.5        # Return on Ad Spend
+    efficiency: 0.3  # CTR and other efficiency metrics
+    growth_potential: 0.2
+
+  # Min and max budget changes allowed
+  min_budget_change_pct: -50
+  max_budget_change_pct: 100
+
+# A/B Testing Configuration
+ab_testing:
+  # Default statistical confidence level
+  significance_level: 0.05  # 95% confidence
+
+  # Default power level
+  power: 0.80  # 80% power
+
+  # Minimum detectable effect sizes
+  minimum_detectable_effects:
+    low_traffic_campaigns: 0.20    # 20% lift
+    medium_traffic_campaigns: 0.15 # 15% lift
+    high_traffic_campaigns: 0.10   # 10% lift
+
+# Reporting Configuration
+reporting:
+  # Metrics to include in reports
+  default_metrics:
+    - impressions
+    - clicks
+    - conversions
+    - spend
+    - revenue
+    - cpm
+    - ctr
+    - cpc
+    - cpa
+    - roas
+    - fill_rate
+    - frequency
+
+  # Aggregation levels
+  aggregation_levels:
+    - daily
+    - weekly
+    - monthly
+
+  # Report distribution
+  email_recipients:
+    - analytics@netflix.com
+
+  # Slack notification channel
+  slack_channel: "#ads-metrics"
+
+# Data Quality Rules
+data_quality:
+  # Outlier detection thresholds (in standard deviations)
+  outlier_threshold_std_dev: 3.0
+
+  # Missing value tolerance (percentage)
+  missing_value_tolerance_pct: 5.0
+
+  # Bot traffic detection rules
+  bot_detection:
+    # Zero cost impressions are flagged as bots
+    flag_zero_cost_impressions: true
+
+    # Device types to flag
+    suspicious_device_patterns:
+      - "bot"
+      - "crawler"
+      - "spider"
+
+  # Data freshness requirements
+  max_data_staleness_hours: 24
+
+# Scheduling
+scheduling:
+  # Daily pipeline run time (UTC)
+  daily_pipeline_time: "03:00"
+
+  # Weekly report generation (day, UTC time)
+  weekly_report:
+    day: "Monday"
+    time: "06:00"
+
+  # Monthly performance review
+  monthly_review:
+    day: "1"
+    time: "08:00"
+
+# Logging and Monitoring
+logging:
+  level: "INFO"
+  log_retention_days: 30
+
+  # Alert thresholds
+  alerts:
+    # Alert if daily spend drops below 80% of average
+    spend_anomaly_threshold_pct: 20
+
+    # Alert if error rate exceeds 5%
+    error_rate_threshold_pct: 5
+
+    # Alert if data freshness exceeds threshold
+    freshness_alert_hours: 6
+
+# Feature Flags
+features:
+  # Enable multi-touch attribution calculation
+  enable_attribution: true
+
+  # Enable campaign optimization recommendations
+  enable_optimization: true
+
+  # Enable A/B test analysis
+  enable_ab_testing: true
+
+  # Enable anomaly detection
+  enable_anomaly_detection: false

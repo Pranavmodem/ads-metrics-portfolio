@@ -1,0 +1,21 @@
+conversion_id,user_id,campaign_id,order_id,event_timestamp,conversion_value,conversion_value_usd,conversion_type,advertiser_id,country,device_type
+conv_001,user_1024,SEM_Q1,order_10001,2024-01-17 08:30:00,49.99,49.99,purchase,adv_netflix_001,US,desktop
+conv_002,user_2048,DSP_Awareness,order_10002,2024-01-17 14:20:30,79.99,79.99,purchase,adv_netflix_001,US,mobile
+conv_003,user_3072,YouTube_Preroll,order_10003,2024-01-17 22:15:45,149.99,149.99,subscription,adv_netflix_001,US,desktop
+conv_004,user_4096,Facebook_Feed,order_10004,2024-01-18 09:45:00,29.99,29.99,trial_signup,adv_netflix_001,US,mobile
+conv_005,user_5120,SEM_Q2,order_10005,2024-01-18 16:30:15,99.99,99.99,purchase,adv_netflix_001,US,mobile
+conv_006,user_6144,DSP_Retargeting,order_10006,2024-01-18 20:10:45,59.99,59.99,purchase,adv_netflix_001,US,desktop
+conv_007,user_7168,YouTube_Discovery,order_10007,2024-01-19 11:25:00,39.99,39.99,trial_signup,adv_netflix_001,US,mobile
+conv_008,user_8192,Instagram_Stories,order_10008,2024-01-19 18:50:30,129.99,129.99,subscription,adv_netflix_001,US,mobile
+conv_009,user_1024,Facebook_Feed,order_10009,2024-01-20 10:15:00,24.99,24.99,trial_signup,adv_netflix_001,US,tablet
+conv_010,user_9216,SEM_Q1,order_10010,2024-01-20 14:45:45,89.99,89.99,purchase,adv_netflix_001,US,desktop
+conv_011,user_10240,DSP_Awareness,order_10011,2024-01-20 17:20:00,69.99,69.99,purchase,adv_netflix_001,US,mobile
+conv_012,user_11264,YouTube_Preroll,order_10012,2024-01-21 09:30:15,159.99,159.99,subscription,adv_netflix_001,US,desktop
+conv_013,user_12288,Instagram_Stories,order_10013,2024-01-21 13:45:30,44.99,44.99,trial_signup,adv_netflix_001,US,mobile
+conv_014,user_13312,SEM_Q2,order_10014,2024-01-21 19:10:00,94.99,94.99,purchase,adv_netflix_001,US,mobile
+conv_015,user_14336,DSP_Retargeting,order_10015,2024-01-22 11:20:45,54.99,54.99,purchase,adv_netflix_001,US,desktop
+conv_016,user_15360,YouTube_Discovery,order_10016,2024-01-22 15:35:00,119.99,119.99,subscription,adv_netflix_001,US,tablet
+conv_017,user_16384,Facebook_Feed,order_10017,2024-01-22 20:50:30,34.99,34.99,trial_signup,adv_netflix_001,US,mobile
+conv_018,user_17408,SEM_Q1,order_10018,2024-01-23 08:45:15,74.99,74.99,purchase,adv_netflix_001,US,mobile
+conv_019,user_18432,DSP_Awareness,order_10019,2024-01-23 12:25:00,139.99,139.99,subscription,adv_netflix_001,US,desktop
+conv_020,user_19456,YouTube_Preroll,order_10020,2024-01-23 17:15:45,84.99,84.99,purchase,adv_netflix_001,US,mobile

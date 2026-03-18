@@ -1,0 +1,26 @@
+# Python Dependencies for Netflix Ads Analytics Portfolio
+
+# Core Data Processing
+numpy==1.24.3
+pandas==2.0.2
+
+# Statistics & Scientific Computing
+scipy==1.11.0
+scikit-learn==1.3.0
+
+# Testing
+pytest==7.4.0
+pytest-cov==4.1.0
+
+# Data Formats & Serialization
+pyyaml==6.0
+python-dateutil==2.8.2
+
+# BigQuery & GCP (optional, for production use)
+# google-cloud-bigquery==3.12.0
+# google-cloud-storage==2.10.0
+
+# Code Quality (development only)
+# black==23.7.0
+# flake8==6.0.0
+# mypy==1.4.1
